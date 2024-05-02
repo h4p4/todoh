@@ -1,8 +1,9 @@
 ﻿namespace todo_app.ViewModels
 {
     using CommunityToolkit.Mvvm.ComponentModel;
+    using CommunityToolkit.Mvvm.Input;
 
-    public abstract class ViewModel : ObservableObject
+    public partial class ViewModel : ObservableObject
     {
         private bool _isEditing;
 
@@ -10,6 +11,12 @@
         {
             get => _isEditing;
             set => SetProperty(ref _isEditing, value);
+        }
+
+        [ICommand]
+        private void Edit()
+        {
+            IsEditing = !IsEditing;
         }
     }
 }
