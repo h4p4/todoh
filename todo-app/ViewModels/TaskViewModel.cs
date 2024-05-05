@@ -10,22 +10,28 @@ public partial class TaskViewModel : RecursiveTaskContainerViewModel
     private string _description;
 
     private string _name;
+    private TaskStateViewModel _state;
     private TaskTypeViewModel _type;
 
     public TaskViewModel()
     {
-        Type = new TaskTypeViewModel();
     }
 
     public TaskViewModel(Task task)
     {
-        Type = new TaskTypeViewModel(task.Type);
+        //Type = new TaskTypeViewModel(task.Type);
     }
 
     public string Name
     {
         get => _name;
         set => SetProperty(ref _name, value);
+    }
+
+    public TaskStateViewModel State
+    {
+        get => _state;
+        set => SetProperty(ref _state, value);
     }
 
     public TaskTypeViewModel Type

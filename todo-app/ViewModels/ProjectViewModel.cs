@@ -9,6 +9,7 @@
 
     public partial class ProjectViewModel : RecursiveTaskContainerViewModel
     {
+        private ObservableCollection<TaskStateViewModel> _defaultTaskStates;
         private ObservableCollection<TaskTypeViewModel> _defaultTaskTypes;
 
         [ObservableProperty]
@@ -34,6 +35,26 @@
                 {
                     Name = "Подзадача",
                 },
+                new()
+                {
+                    Name = "Ошибка",
+                },
+            };
+
+            DefaultTaskStates = new ObservableCollection<TaskStateViewModel>()
+            {
+                new()
+                {
+                    Name = "Пул"
+                },
+                new()
+                {
+                    Name = "В работе"
+                },
+                new()
+                {
+                    Name = "Завершено"
+                },
             };
         }
 
@@ -44,6 +65,12 @@
             //TODO:
             // initialize tasks
             //_tasks.CollectionChanged += SubTasksChanged;
+        }
+
+        public ObservableCollection<TaskStateViewModel> DefaultTaskStates
+        {
+            get => _defaultTaskStates;
+            set => SetProperty(ref _defaultTaskStates, value);
         }
 
         public ObservableCollection<TaskTypeViewModel> DefaultTaskTypes
