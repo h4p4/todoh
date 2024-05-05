@@ -17,6 +17,8 @@
     </Window.InputBindings>-->
     <Window.Resources>
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+        <converters:TreeViewItemNestingLevelToIndentationConverter
+            x:Key="TreeViewItemNestingLevelToIndentationConverter" />
         <Style TargetType="{x:Type Grid}" x:Key="BaseGrid">
             <Setter Property="Background" Value="#A9A5F4" />
             <Setter Property="Margin" Value="10" />
@@ -79,11 +81,38 @@
     <Border Margin="15">
         <Grid Margin="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.5*" />
+                <!--Project List Column-->
+                <ColumnDefinition />
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition MinWidth="100" />
+                <!--Selected Project Column-->
+                <ColumnDefinition>
+                    <ColumnDefinition.Style>
+                        <Style TargetType="{x:Type ColumnDefinition}">
+                            <Setter Property="Width" Value="*" />
+                            <Setter Property="MinWidth" Value="100" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedProject}" Value="{x:Null}">
+                                    <Setter Property="Width" Value="0" />
+                                    <Setter Property="MinWidth" Value="0" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ColumnDefinition.Style>
+                </ColumnDefinition>
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
+                <!--Selected Task Column-->
+                <ColumnDefinition Width="Auto">
+                    <ColumnDefinition.Style>
+                        <Style TargetType="{x:Type ColumnDefinition}">
+                            <Setter Property="Width" Value="Auto" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedProject}" Value="{x:Null}">
+                                    <Setter Property="Width" Value="0" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ColumnDefinition.Style>
+                </ColumnDefinition>
             </Grid.ColumnDefinitions>
             <Grid Grid.Column="0">
                 <Grid.RowDefinitions>
@@ -137,32 +166,21 @@
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Grid.Row="0" Text="Название: ">
-                                    <TextBlock.Style>
-                                        <Style TargetType="{x:Type TextBlock}"
-                                               BasedOn="{StaticResource BaseTextBlock}">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsEditing}" Value="True">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                                <TextBlock Grid.Column="0" Grid.Row="2" Text="Описание: ">
-                                    <TextBlock.Style>
-                                        <Style TargetType="{x:Type TextBlock}"
-                                               BasedOn="{StaticResource BaseTextBlock}">
-                                            <Setter Property="Visibility" Value="Collapsed" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsEditing}" Value="True">
-                                                    <Setter Property="Visibility" Value="Visible" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
+                                <Grid.Resources>
+                                    <Style TargetType="{x:Type TextBlock}"
+                                           BasedOn="{StaticResource BaseTextBlock}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Grid.Resources>
+
+                                <TextBlock Grid.Column="0" Grid.Row="0" Text="Название: " />
+                                <TextBlock Grid.Column="0" Grid.Row="2" Text="Описание: " />
+
                                 <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding Name }">
                                     <TextBox.Style>
                                         <Style TargetType="{x:Type TextBox}"
@@ -176,6 +194,7 @@
                                         </Style>
                                     </TextBox.Style>
                                 </TextBox>
+
                                 <TextBox Grid.Column="1" Grid.Row="2" Text="{Binding Description }">
                                     <TextBox.Style>
                                         <Style TargetType="{x:Type TextBox}"
@@ -183,7 +202,9 @@
                                             <Setter Property="IsReadOnly" Value="True" />
                                             <Setter Property="Visibility" Value="Collapsed" />
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsEditing, UpdateSourceTrigger=PropertyChanged}" Value="True">
+                                                <DataTrigger
+                                                    Binding="{Binding IsEditing, UpdateSourceTrigger=PropertyChanged}"
+                                                    Value="True">
                                                     <Setter Property="IsReadOnly" Value="False" />
                                                     <Setter Property="Visibility" Value="Visible" />
                                                 </DataTrigger>
@@ -191,6 +212,7 @@
                                         </Style>
                                     </TextBox.Style>
                                 </TextBox>
+
                             </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>
@@ -252,6 +274,8 @@
                                     <Grid.Resources>
                                         <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource BaseTextBox}">
                                             <Setter Property="Padding" Value="7 3" />
+                                            <Setter Property="Margin"
+                                                    Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeViewItem}},Converter={StaticResource TreeViewItemNestingLevelToIndentationConverter}}" />
                                             <Style.Triggers>
                                                 <DataTrigger
                                                     Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=DataContext.SelectedProject.IsEditing, UpdateSourceTrigger=PropertyChanged}"
@@ -300,8 +324,6 @@
                                                 Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=SelectedItem}" />
                                     </Style>
                                 </MenuItem.ItemContainerStyle>
-                                <!--Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=DataContext.SelectedProject.CreateTaskCommand}"
-                                      CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=SelectedItem}"-->
                             </MenuItem>
                             <MenuItem Header="Удалить"
                                       Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=DataContext.SelectedProject.DeleteTaskCommand}"
@@ -309,7 +331,20 @@
                         </ContextMenu>
                         <ContextMenu x:Key="TaskTreeViewContextMenu">
                             <MenuItem Header="Создать"
-                                      Command="{Binding SelectedProject.CreateTaskCommand}" />
+                                      ItemsSource="{Binding SelectedProject.DefaultTaskTypes, UpdateSourceTrigger=PropertyChanged}">
+                                <MenuItem.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+                                    </DataTemplate>
+                                </MenuItem.ItemTemplate>
+                                <MenuItem.ItemContainerStyle>
+                                    <Style TargetType="{x:Type MenuItem}">
+                                        <Setter Property="Command" Value="{Binding AddSubTaskCommand}" />
+                                        <Setter Property="CommandParameter"
+                                                Value="{Binding Path=DataContext.SelectedProject, RelativeSource={RelativeSource AncestorType={x:Type TreeView}}}" />
+                                    </Style>
+                                </MenuItem.ItemContainerStyle>
+                            </MenuItem>
                         </ContextMenu>
                     </TreeView.Resources>
                     <TreeView.ItemContainerStyle>
@@ -331,6 +366,11 @@
                                 <DataTrigger
                                     Binding="{Binding SelectedProject.IsEditing, UpdateSourceTrigger=PropertyChanged}"
                                     Value="False">
+                                    <Setter Property="ContextMenu" Value="{x:Null}" />
+                                </DataTrigger>
+                                <DataTrigger
+                                    Binding="{Binding SelectedProject, UpdateSourceTrigger=PropertyChanged}"
+                                    Value="{x:Null}">
                                     <Setter Property="ContextMenu" Value="{x:Null}" />
                                 </DataTrigger>
                             </Style.Triggers>

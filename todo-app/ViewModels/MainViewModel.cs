@@ -9,7 +9,6 @@
 
     public partial class MainViewModel : ViewModel
     {
-        [ObservableProperty]
         private ObservableCollection<ProjectViewModel> _projects;
 
         [ObservableProperty]
@@ -19,7 +18,12 @@
 
         public MainViewModel()
         {
-            _projects = new ObservableCollection<ProjectViewModel>();
+            Projects = new ObservableCollection<ProjectViewModel>();
+        }
+        public ObservableCollection<ProjectViewModel> Projects
+        {
+            get => _projects;
+            set => SetProperty(ref _projects, value);
         }
 
         public ProjectViewModel SelectedProject
@@ -31,7 +35,9 @@
         [ICommand]
         private void AddProject()
         {
-            _projects.Add(new ProjectViewModel());
+            var newProject = new ProjectViewModel();
+            Projects.Add(newProject);
+            SelectedProject = newProject;
         }
 
         [ICommand]
@@ -52,7 +58,7 @@
                 return;
 
             var viewModels = list.Cast<ProjectViewModel>().ToList();
-            viewModels.ForEach(model => _projects.Remove(model));
+            viewModels.ForEach(model => Projects.Remove(model));
         }
     }
 }

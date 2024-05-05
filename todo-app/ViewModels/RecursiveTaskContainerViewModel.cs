@@ -1,8 +1,10 @@
 ﻿namespace todo_app.ViewModels
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Collections.Specialized;
+    using System.Linq;
 
     public class RecursiveTaskContainerViewModel : ViewModel
     {
@@ -13,6 +15,10 @@
             Tasks = new ObservableCollection<RecursiveTaskContainerViewModel>();
             Tasks.CollectionChanged += SubTasksChanged;
         }
+
+        public IEnumerable<RecursiveTaskContainerViewModel> AllNestedTasks =>
+            Tasks.SelectMany(x => x.AllNestedTasks).Concat(Tasks);
+
 
         public ObservableCollection<RecursiveTaskContainerViewModel> Tasks
         {

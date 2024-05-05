@@ -9,7 +9,6 @@
 
     public partial class ProjectViewModel : RecursiveTaskContainerViewModel
     {
-        [ObservableProperty]
         private ObservableCollection<TaskTypeViewModel> _defaultTaskTypes;
 
         [ObservableProperty]
@@ -21,7 +20,7 @@
         public ProjectViewModel()
         {
             IsEditing = true;
-            _defaultTaskTypes = new ObservableCollection<TaskTypeViewModel>
+            DefaultTaskTypes = new ObservableCollection<TaskTypeViewModel>
             {
                 new()
                 {
@@ -45,6 +44,12 @@
             //TODO:
             // initialize tasks
             //_tasks.CollectionChanged += SubTasksChanged;
+        }
+
+        public ObservableCollection<TaskTypeViewModel> DefaultTaskTypes
+        {
+            get => _defaultTaskTypes;
+            set => SetProperty(ref _defaultTaskTypes, value);
         }
 
         [ICommand]
