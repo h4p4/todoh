@@ -21,7 +21,17 @@
             if (level == -1)
                 return Binding.DoNothing;
 
-            return new Thickness(-(level * INDENT_SIZE), 0, 0, 0);
+            var parameterString = parameter.ToString();
+
+            switch (parameterString)
+            {
+                case "NegativeLeft":
+                    return new Thickness(-(level * INDENT_SIZE), 0, (level * INDENT_SIZE), 0);
+                case "NegativeRight":
+                    return new Thickness(0, 0, -(level * INDENT_SIZE), 0);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(parameter));
+            }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -42,6 +52,12 @@
 
         private int GetNestingLevel(TreeViewItem item)
         {
+            var nestingLevel = TreeViewItemExtensions.GetNestingLevel(item);
+
+            if (nestingLevel != -1)
+                return nestingLevel;
+
+            //TODO: вынести всю логику с выставлением уровня вложенности в событие типа лоадед для айтема.
             var control = GetSelectedTreeViewItemParent(item);
 
             if (control is TreeView)
@@ -51,7 +67,10 @@
             }
 
             if (control is not TreeViewItem parentItem)
+            {
+                TreeViewItemExtensions.SetNestingLevel(item, -1);
                 return -1;
+            }
 
             var parentNestingLevel = TreeViewItemExtensions.GetNestingLevel(parentItem);
             if (parentNestingLevel == 0)

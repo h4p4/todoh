@@ -7,7 +7,7 @@
     public static class TreeViewItemExtensions
     {
         public static readonly DependencyProperty NestingLevelProperty = DependencyProperty.RegisterAttached(
-            "NestingLevel", typeof(int), typeof(TreeViewItem), new PropertyMetadata(default(int)));
+            "NestingLevel", typeof(int), typeof(TreeViewItem), new PropertyMetadata(-1));
 
         public static int GetNestingLevel(DependencyObject element)
         {
