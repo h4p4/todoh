@@ -13,7 +13,8 @@
         <KeyBinding Key="O" Modifiers="Control" Command="Open"/>
         <KeyBinding Key="S" Modifiers="Control" Command="SaveAs"/>
         <KeyBinding Key="N" Modifiers="Control" Command="New"/>
-        <KeyBinding Key="Enter" Command=""/>
+        <KeyBinding Key="E" Modifiers="Control" Command=""/>
+        <KeyBinding Key="Delete" Modifiers="Control" Command="Delete"/>
     </Window.InputBindings>-->
     <Window.Resources>
         <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="White" />
@@ -182,7 +183,8 @@
                             <MenuItem
                                 Header="Удалить"
                                 Command="{Binding RemoveProjectsCommand}"
-                                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListView}}, Path=SelectedItems}" />
+                                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type ListView}}, Path=SelectedItems}"
+                                x:Name="RemoveProject" />
                             <MenuItem Header="Редактирование" IsCheckable="True"
                                       IsChecked="{Binding SelectedProject.IsEditing, UpdateSourceTrigger=Explicit}"
                                       Command="{Binding EditProjectsCommand}"
@@ -260,9 +262,12 @@
                     </ListView.ItemTemplate>
                     <ListView.ContextMenu>
                         <ContextMenu>
-                            <MenuItem Header="Добавить" Command="{Binding AddProjectCommand}" />
+                            <MenuItem Header="Создать" InputGestureText="Ctrl+N" Command="{Binding AddProjectCommand}" />
                         </ContextMenu>
                     </ListView.ContextMenu>
+                    <ListView.InputBindings>
+                        <KeyBinding Key="N" Modifiers="Control" Command="{Binding AddProjectCommand}"/>
+                    </ListView.InputBindings>
                 </ListView>
             </Grid>
             <GridSplitter Grid.Column="1" Width="5" Background="Transparent"
@@ -273,7 +278,8 @@
                     <RowDefinition />
                 </Grid.RowDefinitions>
                 <TextBlock Text="Проект: " />
-                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Panel.ZIndex="150">
+                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
+                              Panel.ZIndex="150">
 
                     <Grid>
                         <Grid.RowDefinitions>
@@ -331,7 +337,10 @@
                                 <HierarchicalDataTemplate DataType="{x:Type viewModels:TaskViewModel}"
                                                           ItemsSource="{Binding Tasks, UpdateSourceTrigger=PropertyChanged}">
                                     <Border BorderThickness="2 1 2 1" BorderBrush="#3C3B57" Background="#A9A5F4">
-                                        <Grid>
+                                        <Grid                                             Margin="{Binding 
+                                                RelativeSource={RelativeSource AncestorType={x:Type TreeViewItem}},
+                                                Converter={StaticResource TreeViewItemNestingLevelToIndentationConverter},
+                                                ConverterParameter=NegativeRight}">
                                             <Grid.Resources>
                                                 <Style TargetType="{x:Type TextBox}"
                                                        BasedOn="{StaticResource BaseTextBox}">
