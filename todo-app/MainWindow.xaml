@@ -31,13 +31,12 @@
             <Setter Property="Background" Value="#928ED1" />
             <Setter Property="BorderBrush" Value="#3C3B57" />
             <Setter Property="BorderThickness" Value="2" />
-            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
             <Setter Property="ScrollViewer.CanContentScroll" Value="False" />
         </Style>
         <Style TargetType="{x:Type TreeView}" x:Key="BaseTreeView">
             <Setter Property="Background" Value="#928ED1" />
-            <Setter Property="BorderBrush" Value="#3C3B57" />
-            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="BorderThickness" Value="0" />
         </Style>
         <Style TargetType="{x:Type TextBlock}" x:Key="BaseTextBlock">
             <Setter Property="Foreground" Value="#3C3B57" />
@@ -266,7 +265,7 @@
                         </ContextMenu>
                     </ListView.ContextMenu>
                     <ListView.InputBindings>
-                        <KeyBinding Key="N" Modifiers="Control" Command="{Binding AddProjectCommand}"/>
+                        <KeyBinding Key="N" Modifiers="Control" Command="{Binding AddProjectCommand}" />
                     </ListView.InputBindings>
                 </ListView>
             </Grid>
@@ -278,19 +277,22 @@
                     <RowDefinition />
                 </Grid.RowDefinitions>
                 <TextBlock Text="Проект: " />
-                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
-                              Panel.ZIndex="150">
+                <Border Grid.Row="1">
+                    <Grid Margin="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                            <Grid Margin="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" MinHeight="40" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
 
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition />
-                        </Grid.RowDefinitions>
-                        <!-- Column headers -->
-                        <TreeViewItem Grid.Row="0" IsSelected="False"
-                                      MouseRightButtonDown="UIElement_OnMouseRightButtonDown">
-                            <TreeViewItem.Header>
-                                <Grid>
+                                <!--header-->
+                                <Grid HorizontalAlignment="Stretch" Margin="23 0 0 0">
                                     <Grid.Resources>
                                         <Style TargetType="{x:Type GridSplitter}">
                                             <Setter Property="HorizontalAlignment" Value="Center" />
@@ -304,204 +306,231 @@
                                         <ColumnDefinition SharedSizeGroup="Type" Width="Auto" />
                                         <ColumnDefinition SharedSizeGroup="Split" Width="Auto" />
                                         <ColumnDefinition SharedSizeGroup="Task" Width="Auto" />
-                                        <!-- Placeholders for two columns of ToggleButton -->
                                         <ColumnDefinition SharedSizeGroup="Split" Width="Auto" />
                                         <ColumnDefinition SharedSizeGroup="Descr" Width="Auto" />
                                         <ColumnDefinition SharedSizeGroup="Split" Width="Auto" />
                                         <ColumnDefinition SharedSizeGroup="State" Width="Auto" />
+                                        <ColumnDefinition />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Тип" />
+                                    <TextBlock Grid.Column="0" Text="Тип" HorizontalAlignment="Left" />
                                     <!-- Empty TreeViewItem to measure the size of its ToggleButton into the "Toggle" group-->
                                     <GridSplitter Grid.Column="1" />
-                                    <TextBlock Grid.Column="2" Text="Название" />
+                                    <TextBlock Grid.Column="2" Text="Название" HorizontalAlignment="Left" />
                                     <GridSplitter Grid.Column="3" />
-                                    <TextBlock Grid.Column="4" Text="Описание" />
-                                    <GridSplitter Grid.Column="5" />
-                                    <TextBlock Grid.Column="6" Text="Состояние" />
+                                    <TextBlock Grid.Column="4" Text="Описание" HorizontalAlignment="Left" />
+                                    <GridSplitter Grid.Column="5" ResizeBehavior="BasedOnAlignment" />
+                                    <TextBlock Grid.Column="6" Text="Состояние"
+                                               HorizontalAlignment="Stretch" />
+                                    <ContentPresenter Grid.Column="6" Grid.ColumnSpan="2" Visibility="Hidden"
+                                                      x:Name="LastTreeViewColumnPresenter"
+                                                      HorizontalAlignment="Stretch" />
+                                    <!--<Border Grid.Column="7" Width="2" HorizontalAlignment="Right" />-->
                                 </Grid>
-                            </TreeViewItem.Header>
-                        </TreeViewItem>
 
-                        <TreeView Grid.Row="1"
-                                  ItemsSource="{Binding SelectedProject.Tasks, UpdateSourceTrigger=PropertyChanged}"
-                                  ScrollViewer.HorizontalScrollBarVisibility="Hidden"
-                                  ScrollViewer.VerticalScrollBarVisibility="Auto">
-                            <TreeView.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel
-                                        MaxWidth="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ContentPresenter, AncestorLevel=1}}" />
-                                    <!--MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=ContentPresenter, AncestorLevel=1}}"-->
-                                </ItemsPanelTemplate>
-                            </TreeView.ItemsPanel>
-                            <TreeView.Resources>
-                                <HierarchicalDataTemplate DataType="{x:Type viewModels:TaskViewModel}"
-                                                          ItemsSource="{Binding Tasks, UpdateSourceTrigger=PropertyChanged}">
-                                    <Border BorderThickness="2 1 2 1" BorderBrush="#3C3B57" Background="#A9A5F4">
-                                        <Grid                                             Margin="{Binding 
-                                                RelativeSource={RelativeSource AncestorType={x:Type TreeViewItem}},
-                                                Converter={StaticResource TreeViewItemNestingLevelToIndentationConverter},
-                                                ConverterParameter=NegativeRight}">
-                                            <Grid.Resources>
-                                                <Style TargetType="{x:Type TextBox}"
-                                                       BasedOn="{StaticResource BaseTextBox}">
-                                                    <!--<Setter Property="Padding" Value="7 3" />-->
-                                                    <Setter Property="Margin"
-                                                            Value="{Binding 
-                                                RelativeSource={RelativeSource AncestorType={x:Type TreeViewItem}},
-                                                Converter={StaticResource TreeViewItemNestingLevelToIndentationConverter},
-                                                ConverterParameter=NegativeLeft}" />
-                                                    <Style.Triggers>
-                                                        <DataTrigger
-                                                            Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=DataContext.SelectedProject.IsEditing, UpdateSourceTrigger=PropertyChanged}"
-                                                            Value="False">
-                                                            <Setter Property="IsReadOnly" Value="True" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                                <Style TargetType="{x:Type ComboBox}"
-                                                       BasedOn="{StaticResource BaseComboBox}">
-                                                    <!--<Setter Property="Padding" Value="7 3" />-->
-                                                    <Setter Property="Height" Value="30" />
-                                                    <Setter Property="VerticalAlignment" Value="Top" />
-                                                    <Setter Property="Margin"
-                                                            Value="{Binding 
-                                                RelativeSource={RelativeSource AncestorType={x:Type TreeViewItem}},
-                                                Converter={StaticResource TreeViewItemNestingLevelToIndentationConverter},
-                                                ConverterParameter=NegativeLeft}" />
-                                                    <Style.Triggers>
-                                                        <DataTrigger
-                                                            Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=DataContext.SelectedProject.IsEditing, UpdateSourceTrigger=PropertyChanged}"
-                                                            Value="False">
-                                                            <Setter Property="IsReadOnly" Value="True" />
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                                <Style TargetType="{x:Type Border}">
-                                                    <Setter Property="HorizontalAlignment" Value="Center" />
-                                                    <Setter Property="Width" Value="2" />
-                                                    <Setter Property="VerticalAlignment" Value="Stretch" />
-                                                    <Setter Property="Background" Value="#3C3B57" />
-                                                    <Setter Property="Panel.ZIndex" Value="10" />
-                                                    <Setter Property="Margin"
-                                                            Value="{Binding 
-                                                RelativeSource={RelativeSource AncestorType={x:Type TreeViewItem}},
-                                                Converter={StaticResource TreeViewItemNestingLevelToIndentationConverter},
-                                                ConverterParameter=NegativeLeft}" />
-                                                </Style>
-                                            </Grid.Resources>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition SharedSizeGroup="Type" Width="Auto" />
-                                                <ColumnDefinition SharedSizeGroup="Split" Width="Auto" />
-                                                <ColumnDefinition SharedSizeGroup="Task" Width="Auto" />
-                                                <!-- Placeholders for two columns of ToggleButton -->
-                                                <ColumnDefinition SharedSizeGroup="Split" Width="Auto" />
-                                                <ColumnDefinition SharedSizeGroup="Descr" Width="Auto" />
-                                                <ColumnDefinition SharedSizeGroup="Split" Width="Auto" />
-                                                <ColumnDefinition SharedSizeGroup="State" Width="Auto" />
-                                            </Grid.ColumnDefinitions>
+                                <GridSplitter Grid.Row="1" ResizeDirection="Rows" Height="2"
+                                              Background="#3C3B57"
+                                              VerticalAlignment="Stretch"
+                                              HorizontalAlignment="Stretch"
+                                              Style="{x:Null}" />
 
-                                            <TextBlock Text="{Binding Type.Name}" Padding="7 3" />
-                                            <Border Grid.Column="1" />
-                                            <TextBox Text="{Binding Name}" Grid.Column="2" />
-                                            <Border Grid.Column="3" />
-                                            <TextBox Text="{Binding Description}" Grid.Column="4" />
-                                            <Border Grid.Column="5" />
-                                            <ComboBox Grid.Column="6"
-                                                      ItemsSource="{Binding Path=DataContext.SelectedProject.DefaultTaskStates, RelativeSource={RelativeSource AncestorType={x:Type TreeView}}}"
-                                                      SelectedItem="{Binding State, UpdateSourceTrigger=PropertyChanged}"
-                                                      SelectedIndex="0"
-                                                      DisplayMemberPath="Name" />
-                                            <!--<Border Grid.Column="1" BorderThickness="2 0 0 0">
+                                <!--table-->
+                                <ScrollViewer Grid.Row="2" x:Name="VerticalTreeScrollViewer"
+                                              HorizontalScrollBarVisibility="Disabled" 
+                                              VerticalScrollBarVisibility="Hidden">
+                                    <TreeView ItemsSource="{Binding SelectedProject.Tasks, UpdateSourceTrigger=PropertyChanged}"
+                                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                              ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                                              Margin="0">
+                                    <TreeView.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <StackPanel
+                                                MaxWidth="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ContentPresenter, AncestorLevel=1}}" />
+                                            <!--MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=ContentPresenter, AncestorLevel=1}}"-->
+                                        </ItemsPanelTemplate>
+                                    </TreeView.ItemsPanel>
+                                    <TreeView.Resources>
+                                        <HierarchicalDataTemplate DataType="{x:Type viewModels:TaskViewModel}"
+                                                                  ItemsSource="{Binding Tasks, UpdateSourceTrigger=PropertyChanged}">
+                                            <Border BorderThickness="2 1 2 1" BorderBrush="#3C3B57"
+                                                    Background="#A9A5F4">
+                                                <Grid
+                                                    Margin="{Binding 
+                                                RelativeSource={RelativeSource AncestorType={x:Type TreeViewItem}},
+                                                Converter={StaticResource TreeViewItemNestingLevelToIndentationConverter},
+                                                ConverterParameter=NegativeRight}"
+                                                    HorizontalAlignment="Stretch">
+                                                    <Grid.Resources>
+                                                        <Style TargetType="{x:Type TextBox}"
+                                                               BasedOn="{StaticResource BaseTextBox}">
+                                                            <!--<Setter Property="Padding" Value="7 3" />-->
+                                                            <Setter Property="Margin"
+                                                                    Value="{Binding 
+                                                RelativeSource={RelativeSource AncestorType={x:Type TreeViewItem}},
+                                                Converter={StaticResource TreeViewItemNestingLevelToIndentationConverter},
+                                                ConverterParameter=NegativeLeft}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger
+                                                                    Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=DataContext.SelectedProject.IsEditing, UpdateSourceTrigger=PropertyChanged}"
+                                                                    Value="False">
+                                                                    <Setter Property="IsReadOnly" Value="True" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                        <Style TargetType="{x:Type ComboBox}"
+                                                               BasedOn="{StaticResource BaseComboBox}">
+                                                            <!--<Setter Property="Padding" Value="7 3" />-->
+                                                            <Setter Property="Height" Value="30" />
+                                                            <Setter Property="VerticalAlignment" Value="Top" />
+                                                            <Setter Property="Margin"
+                                                                    Value="{Binding 
+                                                RelativeSource={RelativeSource AncestorType={x:Type TreeViewItem}},
+                                                Converter={StaticResource TreeViewItemNestingLevelToIndentationConverter},
+                                                ConverterParameter=NegativeLeft}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger
+                                                                    Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=DataContext.SelectedProject.IsEditing, UpdateSourceTrigger=PropertyChanged}"
+                                                                    Value="False">
+                                                                    <Setter Property="IsReadOnly" Value="True" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                        <Style TargetType="{x:Type Border}">
+                                                            <Setter Property="HorizontalAlignment" Value="Center" />
+                                                            <Setter Property="Width" Value="2" />
+                                                            <Setter Property="VerticalAlignment" Value="Stretch" />
+                                                            <Setter Property="Background" Value="#3C3B57" />
+                                                            <Setter Property="Panel.ZIndex" Value="10" />
+                                                            <Setter Property="Margin"
+                                                                    Value="{Binding 
+                                                RelativeSource={RelativeSource AncestorType={x:Type TreeViewItem}},
+                                                Converter={StaticResource TreeViewItemNestingLevelToIndentationConverter},
+                                                ConverterParameter=NegativeLeft}" />
+                                                        </Style>
+                                                    </Grid.Resources>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition SharedSizeGroup="Type" />
+                                                        <ColumnDefinition SharedSizeGroup="Split" />
+                                                        <ColumnDefinition SharedSizeGroup="Task" />
+                                                        <ColumnDefinition SharedSizeGroup="Split" />
+                                                        <ColumnDefinition SharedSizeGroup="Descr" />
+                                                        <ColumnDefinition SharedSizeGroup="Split" />
+                                                        <ColumnDefinition SharedSizeGroup="State" />
+                                                        <ColumnDefinition />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <TextBlock Text="{Binding Type.Name}" Padding="7 3" />
+                                                    <Border Grid.Column="1" />
+                                                    <TextBox Text="{Binding Name}" Grid.Column="2" />
+                                                    <Border Grid.Column="3" />
+                                                    <TextBox Text="{Binding Description}" Grid.Column="4" />
+                                                    <Border Grid.Column="5" />
+                                                    <ComboBox Grid.Column="6"
+                                                              ItemsSource="{Binding Path=DataContext.SelectedProject.DefaultTaskStates, RelativeSource={RelativeSource AncestorType={x:Type TreeView}}}"
+                                                              SelectedItem="{Binding State, UpdateSourceTrigger=PropertyChanged}"
+                                                              SelectedIndex="0"
+                                                              DisplayMemberPath="Name"
+                                                              Width="{Binding Path=ActualWidth, ElementName=LastTreeViewColumnPresenter, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}" />
+                                                    <!--<Border Grid.Column="1" BorderThickness="2 0 0 0">
                                         <TextBox Text="{Binding Type.Name}">
                                             -->
-                                            <!--<TextBlock.Style>
+                                                    <!--<TextBlock.Style>
                                         <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource BaseTextBlock}">
                                             <Setter Property="Margin" Value="-45 0 0 0" />
                                             <Setter Property="Padding" Value="45 0 0 0" />
                                         </Style>
                                     </TextBlock.Style>-->
-                                            <!--
+                                                    <!--
                                         </TextBox>
                                     </Border>-->
-                                        </Grid>
-                                    </Border>
-                                </HierarchicalDataTemplate>
-                                <ContextMenu x:Key="TaskTreeViewItemContextMenu">
-                                    <MenuItem Header="Создать"
-                                              ItemsSource="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=DataContext.SelectedProject.DefaultTaskTypes, UpdateSourceTrigger=PropertyChanged}">
-                                        <MenuItem.ItemTemplate>
-                                            <DataTemplate>
-                                                <TextBlock
-                                                    Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
-                                            </DataTemplate>
-                                        </MenuItem.ItemTemplate>
-                                        <MenuItem.ItemContainerStyle>
-                                            <Style TargetType="{x:Type MenuItem}">
-                                                <Setter Property="Command" Value="{Binding AddSubTaskCommand}" />
-                                                <Setter Property="CommandParameter"
-                                                        Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=SelectedItem}" />
-                                            </Style>
-                                        </MenuItem.ItemContainerStyle>
-                                    </MenuItem>
-                                    <MenuItem Header="Удалить"
-                                              Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=DataContext.SelectedProject.DeleteTaskCommand}"
-                                              CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=SelectedItem}" />
-                                </ContextMenu>
-                                <ContextMenu x:Key="TaskTreeViewContextMenu">
-                                    <MenuItem Header="Создать"
-                                              ItemsSource="{Binding SelectedProject.DefaultTaskTypes, UpdateSourceTrigger=PropertyChanged}">
-                                        <MenuItem.ItemTemplate>
-                                            <DataTemplate>
-                                                <TextBlock
-                                                    Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
-                                            </DataTemplate>
-                                        </MenuItem.ItemTemplate>
-                                        <MenuItem.ItemContainerStyle>
-                                            <Style TargetType="{x:Type MenuItem}">
-                                                <Setter Property="Command" Value="{Binding AddSubTaskCommand}" />
-                                                <Setter Property="CommandParameter"
-                                                        Value="{Binding Path=DataContext.SelectedProject, RelativeSource={RelativeSource AncestorType={x:Type TreeView}}}" />
-                                            </Style>
-                                        </MenuItem.ItemContainerStyle>
-                                    </MenuItem>
-                                </ContextMenu>
-                            </TreeView.Resources>
-                            <TreeView.ItemContainerStyle>
-                                <Style TargetType="{x:Type TreeViewItem}"
-                                       BasedOn="{StaticResource BaseTreeViewItem}">
-                                    <Setter Property="ContextMenu"
-                                            Value="{StaticResource TaskTreeViewItemContextMenu}" />
-                                    <Style.Triggers>
-                                        <DataTrigger
-                                            Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=DataContext.SelectedProject.IsEditing, UpdateSourceTrigger=PropertyChanged}"
-                                            Value="False">
-                                            <Setter Property="ContextMenu" Value="{x:Null}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TreeView.ItemContainerStyle>
-                            <TreeView.Style>
-                                <Style TargetType="{x:Type TreeView}" BasedOn="{StaticResource BaseTreeView}">
-                                    <Setter Property="ContextMenu" Value="{StaticResource TaskTreeViewContextMenu}" />
-                                    <Style.Triggers>
-                                        <DataTrigger
-                                            Binding="{Binding SelectedProject.IsEditing, UpdateSourceTrigger=PropertyChanged}"
-                                            Value="False">
-                                            <Setter Property="ContextMenu" Value="{x:Null}" />
-                                        </DataTrigger>
-                                        <DataTrigger
-                                            Binding="{Binding SelectedProject, UpdateSourceTrigger=PropertyChanged}"
-                                            Value="{x:Null}">
-                                            <Setter Property="ContextMenu" Value="{x:Null}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TreeView.Style>
-                        </TreeView>
+                                                </Grid>
+                                            </Border>
+                                        </HierarchicalDataTemplate>
+                                        <ContextMenu x:Key="TaskTreeViewItemContextMenu">
+                                            <MenuItem Header="Создать"
+                                                      ItemsSource="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=DataContext.SelectedProject.DefaultTaskTypes, UpdateSourceTrigger=PropertyChanged}">
+                                                <MenuItem.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock
+                                                            Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+                                                    </DataTemplate>
+                                                </MenuItem.ItemTemplate>
+                                                <MenuItem.ItemContainerStyle>
+                                                    <Style TargetType="{x:Type MenuItem}">
+                                                        <Setter Property="Command"
+                                                                Value="{Binding AddSubTaskCommand}" />
+                                                        <Setter Property="CommandParameter"
+                                                                Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=SelectedItem}" />
+                                                    </Style>
+                                                </MenuItem.ItemContainerStyle>
+                                            </MenuItem>
+                                            <MenuItem Header="Удалить"
+                                                      Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=DataContext.SelectedProject.DeleteTaskCommand}"
+                                                      CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=SelectedItem}" />
+                                        </ContextMenu>
+                                        <ContextMenu x:Key="TaskTreeViewContextMenu">
+                                            <MenuItem Header="Создать"
+                                                      ItemsSource="{Binding SelectedProject.DefaultTaskTypes, UpdateSourceTrigger=PropertyChanged}">
+                                                <MenuItem.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock
+                                                            Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+                                                    </DataTemplate>
+                                                </MenuItem.ItemTemplate>
+                                                <MenuItem.ItemContainerStyle>
+                                                    <Style TargetType="{x:Type MenuItem}">
+                                                        <Setter Property="Command"
+                                                                Value="{Binding AddSubTaskCommand}" />
+                                                        <Setter Property="CommandParameter"
+                                                                Value="{Binding Path=DataContext.SelectedProject, RelativeSource={RelativeSource AncestorType={x:Type TreeView}}}" />
+                                                    </Style>
+                                                </MenuItem.ItemContainerStyle>
+                                            </MenuItem>
+                                        </ContextMenu>
+                                    </TreeView.Resources>
+                                    <TreeView.ItemContainerStyle>
+                                        <Style TargetType="{x:Type TreeViewItem}"
+                                               BasedOn="{StaticResource BaseTreeViewItem}">
+                                            <Setter Property="ContextMenu"
+                                                    Value="{StaticResource TaskTreeViewItemContextMenu}" />
+                                            <Setter Property="HorizontalAlignment" Value="Stretch" />
+                                            <Setter Property="HorizontalContentAlignment" Value="Right" />
+                                            <Style.Triggers>
+                                                <DataTrigger
+                                                    Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=DataContext.SelectedProject.IsEditing, UpdateSourceTrigger=PropertyChanged}"
+                                                    Value="False">
+                                                    <Setter Property="ContextMenu" Value="{x:Null}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TreeView.ItemContainerStyle>
+                                    <TreeView.Style>
+                                        <Style TargetType="{x:Type TreeView}"
+                                               BasedOn="{StaticResource BaseTreeView}">
+                                            <Setter Property="ContextMenu"
+                                                    Value="{StaticResource TaskTreeViewContextMenu}" />
+                                            <Style.Triggers>
+                                                <DataTrigger
+                                                    Binding="{Binding SelectedProject.IsEditing, UpdateSourceTrigger=PropertyChanged}"
+                                                    Value="False">
+                                                    <Setter Property="ContextMenu" Value="{x:Null}" />
+                                                </DataTrigger>
+                                                <DataTrigger
+                                                    Binding="{Binding SelectedProject, UpdateSourceTrigger=PropertyChanged}"
+                                                    Value="{x:Null}">
+                                                    <Setter Property="ContextMenu" Value="{x:Null}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TreeView.Style>
+                                </TreeView>
+                                </ScrollViewer>
+                            </Grid>
+                        </ScrollViewer>
+                        <local:BindableScrollBar BoundScrollViewer="{Binding ElementName=VerticalTreeScrollViewer}" 
+                                                 Grid.Column="1" Orientation="Vertical" />
                     </Grid>
 
-
-                </ScrollViewer>
+                </Border>
 
             </Grid>
 
