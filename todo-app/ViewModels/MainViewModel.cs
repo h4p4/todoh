@@ -3,15 +3,12 @@
     using System.Collections;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using System.Windows.Input;
 
-    using CommunityToolkit.Mvvm.ComponentModel;
-    using CommunityToolkit.Mvvm.Input;
+    using todo_app.Commands;
 
     public partial class MainViewModel : ViewModel
     {
-        private ObservableCollection<ProjectViewModel> _projects;
-
-        [ObservableProperty]
         private ObservableCollection<ProjectViewModel> _selectedProjects;
 
         private ProjectViewModel _selectedProject;
@@ -19,11 +16,26 @@
         public MainViewModel()
         {
             Projects = new ObservableCollection<ProjectViewModel>();
+            AddProjectCommand = new Command(AddProject);
+            EditProjectsCommand = new Command(EditProjects);
+            RemoveProjectsCommand = new Command(RemoveProjects);
+            //SelectedProjectChangedCommand = new Command(OnSelectedProjectChanged);
         }
-        public ObservableCollection<ProjectViewModel> Projects
+
+        public ICommand AddProjectCommand { get; }
+
+        public ICommand EditProjectsCommand { get; }
+
+        public ICommand RemoveProjectsCommand { get; }
+
+        public ObservableCollection<ProjectViewModel> Projects { get; }
+
+        //public ICommand SelectedProjectChangedCommand { get; }
+
+        public ObservableCollection<ProjectViewModel> SelectedProjects
         {
-            get => _projects;
-            set => SetProperty(ref _projects, value);
+            get => _selectedProjects;
+            set => SetProperty(ref _selectedProjects, value);
         }
 
         public ProjectViewModel SelectedProject
@@ -32,7 +44,6 @@
             set => SetProperty(ref _selectedProject, value);
         }
 
-        [ICommand]
         private void AddProject()
         {
             var newProject = new ProjectViewModel();
@@ -40,8 +51,7 @@
             SelectedProject = newProject;
         }
 
-        [ICommand]
-        private void EditProjects(object projectViewModels)
+        private void EditProjects(object? projectViewModels)
         {
             if (projectViewModels is not IList list)
                 return;
@@ -51,8 +61,15 @@
             viewModels.ForEach(model => model.IsEditing = !isEditing);
         }
 
-        [ICommand]
-        private void RemoveProjects(object projectViewModels)
+        //private void OnSelectedProjectChanged(object? obj)
+        //{
+        //    if (obj is not ProjectViewModel projectViewModel)
+        //        return;
+
+        //    SelectedProject = projectViewModel;
+        //}
+
+        private void RemoveProjects(object? projectViewModels)
         {
             if (projectViewModels is not IList list)
                 return;

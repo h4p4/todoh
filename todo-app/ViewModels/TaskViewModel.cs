@@ -1,12 +1,9 @@
 ﻿namespace todo_app.ViewModels;
 
-using CommunityToolkit.Mvvm.ComponentModel;
-
 using todo_app.Core.Models;
 
-public partial class TaskViewModel : RecursiveTaskContainerViewModel
+public partial class TaskViewModel : RecursiveTaskViewModel
 {
-    [ObservableProperty]
     private string _description;
 
     private string _name;
@@ -20,6 +17,12 @@ public partial class TaskViewModel : RecursiveTaskContainerViewModel
     public TaskViewModel(Task task)
     {
         //Type = new TaskTypeViewModel(task.Type);
+    }
+
+    public string Description
+    {
+        get => _description;
+        set => SetProperty(ref _description, value);
     }
 
     public string Name

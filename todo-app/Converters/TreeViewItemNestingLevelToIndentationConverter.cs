@@ -26,7 +26,7 @@
             switch (parameterString)
             {
                 case "NegativeLeft":
-                    return new Thickness(-(level * INDENT_SIZE), 0, (level * INDENT_SIZE), 0);
+                    return new Thickness(-(level * INDENT_SIZE), 0, level * INDENT_SIZE, 0);
                 case "NegativeRight":
                     return new Thickness(0, 0, -(level * INDENT_SIZE), 0);
                 default:

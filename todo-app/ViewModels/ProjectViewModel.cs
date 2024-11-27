@@ -1,25 +1,26 @@
 ﻿namespace todo_app.ViewModels
 {
+    using System;
     using System.Collections.ObjectModel;
+    using System.Windows.Input;
 
-    using CommunityToolkit.Mvvm.ComponentModel;
-    using CommunityToolkit.Mvvm.Input;
-
+    using todo_app.Commands;
     using todo_app.Core.Models;
 
-    public partial class ProjectViewModel : RecursiveTaskContainerViewModel
+    public partial class ProjectViewModel : RecursiveTaskViewModel
     {
         private ObservableCollection<TaskStateViewModel> _defaultTaskStates;
         private ObservableCollection<TaskTypeViewModel> _defaultTaskTypes;
-
-        [ObservableProperty]
         private string _description;
-
-        [ObservableProperty]
         private string _name;
+        private TaskViewModel _selectedTask;
 
         public ProjectViewModel()
         {
+            CreateTaskCommand = new Command(CreateTask);
+            DeleteTaskCommand = new Command((Action<object?>)DeleteTask);
+            UpdateSelectedTaskCommand = new Command(UpdateSelectedTask);
+
             IsEditing = true;
             DefaultTaskTypes = new ObservableCollection<TaskTypeViewModel>
             {
@@ -41,7 +42,7 @@
                 },
             };
 
-            DefaultTaskStates = new ObservableCollection<TaskStateViewModel>()
+            DefaultTaskStates = new ObservableCollection<TaskStateViewModel>
             {
                 new()
                 {
@@ -67,36 +68,66 @@
             //_tasks.CollectionChanged += SubTasksChanged;
         }
 
-        public ObservableCollection<TaskStateViewModel> DefaultTaskStates
+
+        public ICommand CreateTaskCommand { get; }
+
+        public ICommand DeleteTaskCommand { get; }
+
+        public ICommand UpdateSelectedTaskCommand { get; }
+
+        public ObservableCollection<TaskStateViewModel> DefaultTaskStates { get; }
+
+        public ObservableCollection<TaskTypeViewModel> DefaultTaskTypes { get; }
+
+        public string Description
         {
-            get => _defaultTaskStates;
-            set => SetProperty(ref _defaultTaskStates, value);
+            get => _description;
+            set => SetProperty(ref _description, value);
         }
 
-        public ObservableCollection<TaskTypeViewModel> DefaultTaskTypes
+        public string Name
         {
-            get => _defaultTaskTypes;
-            set => SetProperty(ref _defaultTaskTypes, value);
+            get => _name;
+            set => SetProperty(ref _name, value);
         }
 
-        [ICommand]
-        private void CreateTask(TaskViewModel? taskViewModel)
+        public TaskViewModel SelectedTask
+        {
+            get => _selectedTask;
+            set => SetProperty(ref _selectedTask, value);
+        }
+
+        private void CreateTask(object? parameter)
         {
             var newTask = new TaskViewModel();
 
-            if (taskViewModel == null)
+            if (parameter == null)
             {
                 Tasks.Add(newTask);
                 return;
             }
 
+            if (parameter is not TaskViewModel taskViewModel)
+                return;
+
             taskViewModel.Tasks.Add(newTask);
+            SelectedTask = newTask;
         }
 
-        [ICommand]
-        private void DeleteTask(TaskViewModel? taskViewModel)
+        private void DeleteTask(object? parameter)
         {
-            taskViewModel?.DeleteTask();
+            if (parameter is not TaskViewModel taskViewModel)
+                return;
+
+            taskViewModel.DeleteTask();
+        }
+
+        private void UpdateSelectedTask(object? obj)
+        {
+            if (obj is not TaskViewModel taskViewModel)
+                return;
+
+            SelectedTask = taskViewModel;
         }
     }
 }

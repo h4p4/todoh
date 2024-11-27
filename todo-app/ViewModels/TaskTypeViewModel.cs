@@ -1,9 +1,9 @@
 ﻿namespace todo_app.ViewModels;
 
 using System;
+using System.Windows.Input;
 
-using CommunityToolkit.Mvvm.Input;
-
+using todo_app.Commands;
 using todo_app.Core.Models;
 
 public partial class TaskTypeViewModel : ViewModel
@@ -14,12 +14,15 @@ public partial class TaskTypeViewModel : ViewModel
 
     public TaskTypeViewModel()
     {
+        AddSubTaskCommand = new Command(AddSubTask);
     }
 
     public TaskTypeViewModel(TaskType taskType)
     {
         throw new NotImplementedException();
     }
+
+    public ICommand AddSubTaskCommand { get; }
 
     public string Description
     {
@@ -33,10 +36,11 @@ public partial class TaskTypeViewModel : ViewModel
         set => SetProperty(ref _name, value);
     }
 
-    [ICommand]
-    private void AddSubTask(RecursiveTaskContainerViewModel taskContainerViewModel)
+    private void AddSubTask(object? parameter)
     {
+        if (parameter is not RecursiveTaskViewModel taskViewModel)
+            return;
         var newTask = new TaskViewModel { Type = this };
-        taskContainerViewModel.Tasks.Add(newTask);
+        taskViewModel.Tasks.Add(newTask);
     }
 }
