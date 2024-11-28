@@ -14,15 +14,12 @@ public partial class TaskTypeViewModel : ViewModel
 
     public TaskTypeViewModel()
     {
-        AddSubTaskCommand = new Command(AddSubTask);
     }
 
     public TaskTypeViewModel(TaskType taskType)
     {
         throw new NotImplementedException();
     }
-
-    public ICommand AddSubTaskCommand { get; }
 
     public string Description
     {
@@ -36,11 +33,5 @@ public partial class TaskTypeViewModel : ViewModel
         set => SetProperty(ref _name, value);
     }
 
-    private void AddSubTask(object? parameter)
-    {
-        if (parameter is not RecursiveTaskViewModel taskViewModel)
-            return;
-        var newTask = new TaskViewModel { Type = this };
-        taskViewModel.Tasks.Add(newTask);
-    }
+
 }

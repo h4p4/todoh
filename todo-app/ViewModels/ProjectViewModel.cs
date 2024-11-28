@@ -1,6 +1,5 @@
 ﻿namespace todo_app.ViewModels
 {
-    using System;
     using System.Collections.ObjectModel;
     using System.Windows.Input;
 
@@ -9,17 +8,13 @@
 
     public partial class ProjectViewModel : RecursiveTaskViewModel
     {
-        private ObservableCollection<TaskStateViewModel> _defaultTaskStates;
-        private ObservableCollection<TaskTypeViewModel> _defaultTaskTypes;
         private string _description;
         private string _name;
         private TaskViewModel _selectedTask;
 
         public ProjectViewModel()
         {
-            CreateTaskCommand = new Command(CreateTask);
-            DeleteTaskCommand = new Command((Action<object?>)DeleteTask);
-            UpdateSelectedTaskCommand = new Command(UpdateSelectedTask);
+            UpdateSelectedTaskCommand = new Command<TaskViewModel>(UpdateSelectedTask);
 
             IsEditing = true;
             DefaultTaskTypes = new ObservableCollection<TaskTypeViewModel>
@@ -68,11 +63,6 @@
             //_tasks.CollectionChanged += SubTasksChanged;
         }
 
-
-        public ICommand CreateTaskCommand { get; }
-
-        public ICommand DeleteTaskCommand { get; }
-
         public ICommand UpdateSelectedTaskCommand { get; }
 
         public ObservableCollection<TaskStateViewModel> DefaultTaskStates { get; }
@@ -97,37 +87,10 @@
             set => SetProperty(ref _selectedTask, value);
         }
 
-        private void CreateTask(object? parameter)
+        private void UpdateSelectedTask(TaskViewModel? taskViewModel)
         {
-            var newTask = new TaskViewModel();
-
-            if (parameter == null)
-            {
-                Tasks.Add(newTask);
-                return;
-            }
-
-            if (parameter is not TaskViewModel taskViewModel)
-                return;
-
-            taskViewModel.Tasks.Add(newTask);
-            SelectedTask = newTask;
-        }
-
-        private void DeleteTask(object? parameter)
-        {
-            if (parameter is not TaskViewModel taskViewModel)
-                return;
-
-            taskViewModel.DeleteTask();
-        }
-
-        private void UpdateSelectedTask(object? obj)
-        {
-            if (obj is not TaskViewModel taskViewModel)
-                return;
-
-            SelectedTask = taskViewModel;
+            if (taskViewModel != null)
+                SelectedTask = taskViewModel;
         }
     }
 }

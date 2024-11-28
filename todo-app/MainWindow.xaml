@@ -338,11 +338,11 @@
                                 <ScrollViewer Grid.Row="2" x:Name="VerticalTreeScrollViewer"
                                               HorizontalScrollBarVisibility="Disabled"
                                               VerticalScrollBarVisibility="Hidden">
-                                    <TreeView
-                                        ItemsSource="{Binding SelectedProject.Tasks, UpdateSourceTrigger=PropertyChanged}"
-                                        ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                        ScrollViewer.VerticalScrollBarVisibility="Disabled"
-                                        Margin="0">
+                                    <TreeView Tag="{Binding DataContext, RelativeSource={RelativeSource Mode=Self}}"
+                                              ItemsSource="{Binding SelectedProject.Tasks, UpdateSourceTrigger=PropertyChanged}"
+                                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                              ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                                              Margin="0">
                                         <i:Interaction.Triggers>
                                             <i:EventTrigger EventName="SelectedItemChanged">
                                                 <i:InvokeCommandAction
@@ -456,26 +456,25 @@
                                             </HierarchicalDataTemplate>
                                             <ContextMenu x:Key="TaskTreeViewItemContextMenu">
                                                 <MenuItem Header="Создать"
-                                                          DataContext="{Binding SelectedProject.SelectedTask}"
-                                                          ItemsSource="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=DataContext.SelectedProject.DefaultTaskTypes, UpdateSourceTrigger=PropertyChanged}">
+                                                          ItemsSource="{Binding  Path=DataContext.SelectedProject.DefaultTaskTypes, RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=TreeView}, UpdateSourceTrigger=PropertyChanged}">
                                                     <MenuItem.ItemTemplate>
                                                         <DataTemplate>
                                                             <TextBlock
                                                                 Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
                                                         </DataTemplate>
                                                     </MenuItem.ItemTemplate>
+                                                    <!--TODO: Не фурычит-->
                                                     <MenuItem.ItemContainerStyle>
                                                         <Style TargetType="{x:Type MenuItem}">
                                                             <Setter Property="Command"
-                                                                    Value="{Binding AddSubTaskCommand}" />
+                                                                    Value="{Binding PlacementTarget.Tag.SelectedProject.SelectedTask.CreateInnerTaskCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContextMenu}}" />
                                                             <Setter Property="CommandParameter"
-                                                                    Value="{Binding Path=DataContext, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" />
+                                                                    Value="{Binding }" />
                                                         </Style>
                                                     </MenuItem.ItemContainerStyle>
                                                 </MenuItem>
                                                 <MenuItem Header="Удалить"
-                                                          Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=DataContext.SelectedProject.DeleteTaskCommand}"
-                                                          CommandParameter="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=SelectedItem}" />
+                                                          Command="{Binding PlacementTarget.Tag.SelectedProject.SelectedTask.DeleteTaskCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContextMenu}}" />
                                             </ContextMenu>
                                             <ContextMenu x:Key="TaskTreeViewContextMenu">
                                                 <MenuItem Header="Создать"
@@ -490,9 +489,9 @@
                                                     <MenuItem.ItemContainerStyle>
                                                         <Style TargetType="{x:Type MenuItem}">
                                                             <Setter Property="Command"
-                                                                    Value="{Binding AddSubTaskCommand}" />
+                                                                    Value="{Binding Path=DataContext.SelectedProject.CreateInnerTaskCommand, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" />
                                                             <Setter Property="CommandParameter"
-                                                                    Value="{Binding Path=DataContext.SelectedProject, RelativeSource={RelativeSource AncestorType={x:Type ContextMenu}}}" />
+                                                                    Value="{Binding }" />
                                                         </Style>
                                                     </MenuItem.ItemContainerStyle>
                                                 </MenuItem>
@@ -501,6 +500,8 @@
                                         <TreeView.ItemContainerStyle>
                                             <Style TargetType="{x:Type TreeViewItem}"
                                                    BasedOn="{StaticResource BaseTreeViewItem}">
+                                                <Setter Property="Tag"
+                                                        Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type TreeView}}, Path=DataContext, UpdateSourceTrigger=PropertyChanged}" />
                                                 <Setter Property="ContextMenu"
                                                         Value="{StaticResource TaskTreeViewItemContextMenu}" />
                                                 <Setter Property="HorizontalAlignment" Value="Stretch" />

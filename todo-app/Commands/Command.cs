@@ -5,6 +5,14 @@
 
     public delegate bool BooleanAction();
 
+    public class Command<TParameter> : Command
+    {
+        public Command(Action<TParameter?> execute, Func<TParameter?, bool>? canExecute = null) :
+            base(p => execute.Invoke((TParameter?)p), canExecute == null ? null : c => canExecute((TParameter?)c))
+        {
+        }
+    }
+
     public class Command : ICommand
     {
         private readonly Action<object?> _execute;

@@ -16,10 +16,10 @@
         public MainViewModel()
         {
             Projects = new ObservableCollection<ProjectViewModel>();
+
             AddProjectCommand = new Command(AddProject);
-            EditProjectsCommand = new Command(EditProjects);
-            RemoveProjectsCommand = new Command(RemoveProjects);
-            //SelectedProjectChangedCommand = new Command(OnSelectedProjectChanged);
+            EditProjectsCommand = new Command<IList>(EditProjects);
+            RemoveProjectsCommand = new Command<IList>(RemoveProjects);
         }
 
         public ICommand AddProjectCommand { get; }
@@ -29,8 +29,6 @@
         public ICommand RemoveProjectsCommand { get; }
 
         public ObservableCollection<ProjectViewModel> Projects { get; }
-
-        //public ICommand SelectedProjectChangedCommand { get; }
 
         public ObservableCollection<ProjectViewModel> SelectedProjects
         {
@@ -51,31 +49,20 @@
             SelectedProject = newProject;
         }
 
-        private void EditProjects(object? projectViewModels)
+        private void EditProjects(IList? projectViewModels)
         {
-            if (projectViewModels is not IList list)
+            if (projectViewModels is null)
                 return;
 
-            var viewModels = list.Cast<ProjectViewModel>().ToList();
+            var viewModels = projectViewModels.Cast<ProjectViewModel>().ToList();
             var isEditing = SelectedProject.IsEditing;
             viewModels.ForEach(model => model.IsEditing = !isEditing);
         }
 
-        //private void OnSelectedProjectChanged(object? obj)
-        //{
-        //    if (obj is not ProjectViewModel projectViewModel)
-        //        return;
-
-        //    SelectedProject = projectViewModel;
-        //}
-
-        private void RemoveProjects(object? projectViewModels)
+        private void RemoveProjects(IList? projectViewModels)
         {
-            if (projectViewModels is not IList list)
-                return;
-
-            var viewModels = list.Cast<ProjectViewModel>().ToList();
-            viewModels.ForEach(model => Projects.Remove(model));
+            var viewModels = projectViewModels?.Cast<ProjectViewModel>().ToList();
+            viewModels?.ForEach(model => Projects.Remove(model));
         }
     }
 }
